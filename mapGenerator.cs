@@ -48,11 +48,13 @@ public class mapGenerator : MonoBehaviour {
 
 			nodeLineRenderers [i] = nodes [i].GetComponent<LineRenderer>;
 
-			nodeLineRenderers [i].SetPosition (1, targetNode);
+			// ACHTUNG! Dieses if-Statement muss true ausgeben, bevor i++ passiert, damit der der LineRenderer dieser Node ein Ziel bekommt.
+			if (targetNode != notTooFarAway) {
 
+				nodeLineRenderers [i].SetPosition (1, targetNode);
+			
+			}
 		}
-
-
 	}
 
 	// Use this for initialization
@@ -63,4 +65,4 @@ public class mapGenerator : MonoBehaviour {
 		DrawConnections ();
 
 	}
-} 
+}
