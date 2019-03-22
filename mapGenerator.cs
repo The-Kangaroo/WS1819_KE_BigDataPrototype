@@ -4,65 +4,80 @@ using UnityEngine;
 
 public class mapGenerator : MonoBehaviour {
 
-	public int maxNodes;
-	public int maxConnections;
-	public float range;
+	public int nodeAmount;
+	public float maxConnectionLenght;
+	public float networkSize;
 	public GameObject[] nodeTypes;
 
 	private Quaternion noRotation;
-	private List<Vector3> nodePositions = new List<Vector3>();
 	private GameObject[] nodes;
-	private LineRenderer[] nodeLineRenderers; 
+
+	// Use this for initialization
+	void Start () {
+
+		noRotation = new Quaternion (0.0f, 0.0f, 0.0f, 0.0f);
+		nodes = new GameObject[nodeAmount];
+
+		CreateNodes ();
+		DrawConnections ();
+
+	}
 
 	// Instantiates a given maximum amount of diverse nodes in a given amount of maximum area
 	void CreateNodes () {
 
 		if (nodeTypes.Length == 0) {
+
+			print ("No node types found!");
 			return;
 		}
 
-		for (int i = 0; i <= maxNodes; i++) {
+		if (nodeAmount == 0) {
+
+			print ("The node amount is set to 0!");
+		}
+
+		for (int i = 0; i < nodeAmount; i++) {
 
 			int random = Random.Range (0, nodeTypes.Length);
 			GameObject nodeCurrent = nodeTypes[random];
 
-			Vector3 randomPosition = new Vector3(Random.Range(-range, range), Random.Range(-range, range), Random.Range(-range, range));
+			Vector3 randomPosition = new Vector3(Random.Range(-networkSize, networkSize), Random.Range(-networkSize, networkSize), Random.Range(-networkSize, networkSize));
 
-			Instantiate (nodeCurrent, randomPosition, noRotation);
-
-			nodePositions.Add (randomPosition);
-
+			nodes [i] = Instantiate (nodeCurrent, randomPosition, noRotation);
 		}
 	}
 
 	// Draws lines between nodes as long as they're a given maximum distance apart
 	void DrawConnections () {
 
-		if (nodes == null) {
-			
-			nodes = GameObject.FindGameObjectsWithTag ("node");
+		if (maxConnectionLenght == 0.0f) {
+
+			print ("Maximum length of connections is set to 0!");
 
 		}
 
 		for (int i = 0; i < nodes.Length; i++) {
 
-			nodeLineRenderers [i] = nodes [i].GetComponent<LineRenderer>;
+			GameObject startNode = nodes [i]; 
+			Vector3 startNodePosition = startNode.transform.position;
+			LineRenderer startNodeLineRenderer = startNode.GetComponent<LineRenderer>();
 
-			// ACHTUNG! Dieses if-Statement muss true ausgeben, bevor i++ passiert, damit der der LineRenderer dieser Node ein Ziel bekommt.
-			if (targetNode != notTooFarAway) {
+			GameObject targetNode = nodes [Random.Range (0, nodeAmount)];
+			Vector3 targetNodePosition = targetNode.transform.position;
 
-				nodeLineRenderers [i].SetPosition (1, targetNode);
+			float connectionLength = Vector3.Distance (startNodePosition, targetNodePosition);
+
+			if (connectionLength <= maxConnectionLenght) {
+
+				startNodeLineRenderer.SetPosition (0, startNodePosition);
+				startNodeLineRenderer.SetPosition (1, targetNodePosition);
 			
+			} else {
+
+				i--;
+
 			}
 		}
-	}
-
-	// Use this for initialization
-	void Start () {
-
-		noRotation = new Quaternion (0.0f, 0.0f, 0.0f, 0.0f);
-		CreateNodes ();
-		DrawConnections ();
-
 	}
 }
